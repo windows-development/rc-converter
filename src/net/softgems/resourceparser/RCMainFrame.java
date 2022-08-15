@@ -7,12 +7,31 @@
 
 package net.softgems.resourceparser;
 
+import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
 import net.softgems.resourceparser.main.*;
 import net.softgems.resourceparser.preprocessor.*;
 import net.softgems.resourceparser.xml.ResourceStatement;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.custom.*;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+//import org.eclipse.swt.layout.;
 
 import org.jdom.*;
 import org.jdom.output.*;
@@ -32,6 +51,7 @@ import antlr.collections.AST;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
+
 public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 	private Button browseOutputFolderButton;
 	private Text outputPathEdit;

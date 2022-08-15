@@ -15,6 +15,8 @@ import java.nio.charset.*;
 
 import sun.nio.cs.StreamDecoder;
 
+
+
 /**
  * InputStreamReaderEx is a rewrite of the Java InputStreamReader class that allows to 
  * switch the character set to decode the input at any time.

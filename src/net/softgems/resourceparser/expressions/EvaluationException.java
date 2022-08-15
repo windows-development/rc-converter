@@ -35,6 +35,7 @@ public class EvaluationException extends RuntimeException
    */
   public static EvaluationException create(AST node)
   {
+	  
     String message = MessageFormat.format("[Expression evaluator] [{0}, {1}] Invalid token \"{2}\"",
       new Object[] 
       {
