@@ -47,3 +47,7 @@ Improvements over fork origin
 ===
 1. Able to run on x64 windows 10
 2. Added persistence for several UI controls so that the values are retained across application close
+
+Screenshots
+===
+![main window](misc/window.JPG)
