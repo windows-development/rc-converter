@@ -42,3 +42,8 @@ References
 1. https://www.eclipse.org/forums/index.php/t/166444/
 2. https://www.eclipse.org/forums/index.php/t/37549/
 3. https://stackoverflow.com/questions/957700/how-to-set-the-java-library-path-from-eclipse
+
+Improvements over fork origin
+===
+1. Able to run on x64 windows 10
+2. Added persistence for several UI controls so that the values are retained across application close

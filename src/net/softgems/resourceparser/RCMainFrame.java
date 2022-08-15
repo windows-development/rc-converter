@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -58,6 +57,12 @@ import antlr.collections.AST;
 public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 	
 	private String PREF_INCLUDE_PATHS = "INCLUDE_PATHS";
+	private String PREF_INCLUDE_RC_RADIO = "INCLUDE_RADIO";//single file/multiple file
+	private String PREF_INCLUDE_RC_VAL_SINGLE = "INCLUDE_RADIO_SINGLE";//single file/multiple file
+	private String PREF_INCLUDE_RC_VAL_MULTIPLE = "INCLUDE_RADIO_MULTIPLE";//single file/multiple file
+	private String PREF_INCLUDE_RC_FILE_PATH_SINGLE = "INCLUDE_RC_FILE_PATHS_SINGLE";//single file/multiple file
+	private String PREF_INCLUDE_RC_FILE_PATH_MULTIPLE = "INCLUDE_RC_FILE_PATHS_MULTIPLE";//single file/multiple file
+	private String PREF_INCLUDE_OUTPUT_PATH = "INCLUDE_OUTPUT_PATH";//select output folder persistence
 	
 	private Button browseOutputFolderButton;
 	private Text outputPathEdit;
@@ -839,7 +844,6 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 			singleFileRadioButtonLData.grabExcessHorizontalSpace = false;
 			singleFileRadioButtonLData.grabExcessVerticalSpace = false;
 			singleFileRadioButton.setLayoutData(singleFileRadioButtonLData);
-			singleFileRadioButton.setSelection(false);
 			singleFileRadioButton.setText("Single file, Select the resource script (*.rc file) you like to convert:");
 			singleFileRadioButton.setSize(new org.eclipse.swt.graphics.Point(477,16));
 			singleFileRadioButton.setEnabled(true);
@@ -901,7 +905,6 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 			multipleFilesRadioButtonLData.grabExcessHorizontalSpace = false;
 			multipleFilesRadioButtonLData.grabExcessVerticalSpace = false;
 			multipleFilesRadioButton.setLayoutData(multipleFilesRadioButtonLData);
-			multipleFilesRadioButton.setSelection(true);
 			multipleFilesRadioButton.setText("Multiple files (via list), select the *.txt file that contains a list of files to convert:");
 			multipleFilesRadioButton.setSize(new org.eclipse.swt.graphics.Point(484,16));
 			multipleFilesRadioButton.setFont(singleFileRadioButtonfont);
@@ -910,6 +913,7 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 					multipleFilesRadioButtonWidgetSelected(evt);
 				}
 			});
+			
 	
 			GridData txtFileNameEditLData = new GridData();
 			txtFileNameEditLData.verticalAlignment = GridData.CENTER;
@@ -929,6 +933,7 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 					txtFileNameEditModifyText(evt);
 				}
 			});
+
 	
 			GridData browseIniFileButtonLData = new GridData();
 			browseIniFileButtonLData.verticalAlignment = GridData.CENTER;
@@ -1409,8 +1414,12 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 	 */
 	public void postInitGUI()
   {
-    // TODO: Remove debug path before release.
-    outputPathEdit.setText("");
+	String prefVal = Preferences.userRoot().get(PREF_INCLUDE_OUTPUT_PATH, "");
+	
+	if(!prefVal.equals(""))
+	{
+		outputPathEdit.setText(prefVal);
+	}
 
     // If the user gave the system's include path environment variable to us (as VM argument) then
     // use this for the initial entries. Here's how you would specify the VM argument:
@@ -1429,7 +1438,7 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
     {
     	String includePathsStr = Preferences.userRoot().get(PREF_INCLUDE_PATHS, "");
     	
-    	if(includePathsStr != "")
+    	if(!includePathsStr.equals(""))
     	{
     		String[] paths = includePathsStr.split(";");
     		for (int i = 0; i < paths.length; i++)
@@ -1457,6 +1466,36 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
         item.setText(1, parts[1].trim());
     }
     cursor = setupTableCursor(symbolsTable);
+    
+    prefVal = Preferences.userRoot().get(PREF_INCLUDE_RC_RADIO, PREF_INCLUDE_RC_VAL_MULTIPLE);
+    
+	if(prefVal.equals(PREF_INCLUDE_RC_VAL_SINGLE))
+	{
+		singleFileRadioButton.setSelection(true);
+		multipleFilesRadioButton.setSelection(false);
+		singleFileRadioButtonWidgetSelectedInternal();
+		
+	}
+	else
+	{
+		singleFileRadioButton.setSelection(false);
+		multipleFilesRadioButton.setSelection(true);
+		multipleFilesRadioButtonWidgetSelectedInternal();
+	}
+	
+	String prefFilePath = Preferences.userRoot().get(PREF_INCLUDE_RC_FILE_PATH_SINGLE, "");
+	if(!prefFilePath.equals(""))
+	{
+		rcFileNameEdit.setText(prefFilePath);
+	}
+	
+	prefFilePath = Preferences.userRoot().get(PREF_INCLUDE_RC_FILE_PATH_MULTIPLE, "");
+	if(!prefFilePath.equals(""))
+	{
+		txtFileNameEdit.setText(prefFilePath);
+	}
+	//Preferences.userRoot().put(PREF_INCLUDE_RC_FILE_NAME, newFile);
+	
 	}
   
   //------------------------------------------------------------------------------------------------
@@ -1477,7 +1516,10 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
     rcFilePicker.setFileName(rcFileNameEdit.getText());
     String newFile = rcFilePicker.open();
     if (newFile != null)
+    {
       rcFileNameEdit.setText(newFile);
+      Preferences.userRoot().put(PREF_INCLUDE_RC_FILE_PATH_SINGLE, newFile);
+    }
     
 	}
 
@@ -1485,15 +1527,21 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 
 	protected void singleFileRadioButtonWidgetSelected(SelectionEvent evt)
   {
-    txtFileNameEdit.setEnabled(false);
-    browseIniFileButton.setEnabled(false);
-
-    rcFileNameEdit.setEnabled(true);
-    browseRCFileButton.setEnabled(true);
-
-    File rcFile = new File(rcFileNameEdit.getText());
-    parseButton.setEnabled((rcFile.exists() && rcFile.isFile()));
+    singleFileRadioButtonWidgetSelectedInternal();
   }
+
+	private void singleFileRadioButtonWidgetSelectedInternal() {
+		txtFileNameEdit.setEnabled(false);
+		browseIniFileButton.setEnabled(false);
+
+		rcFileNameEdit.setEnabled(true);
+		browseRCFileButton.setEnabled(true);
+
+		File rcFile = new File(rcFileNameEdit.getText());
+		parseButton.setEnabled((rcFile.exists() && rcFile.isFile()));
+		
+		Preferences.userRoot().put(PREF_INCLUDE_RC_RADIO, PREF_INCLUDE_RC_VAL_SINGLE);
+	}
 
   //------------------------------------------------------------------------------------------------
 
@@ -1501,21 +1549,26 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
   {
     File rcFile = new File(rcFileNameEdit.getText());
     parseButton.setEnabled((rcFile.exists() && rcFile.isFile()));
-    parseButton.setEnabled(true);
 	}
 
   //------------------------------------------------------------------------------------------------
 
 	protected void multipleFilesRadioButtonWidgetSelected(SelectionEvent evt)
   {
-    txtFileNameEdit.setEnabled(true);
-    browseIniFileButton.setEnabled(true);
+    multipleFilesRadioButtonWidgetSelectedInternal();
+  }
 
-    rcFileNameEdit.setEnabled(false);
-    browseRCFileButton.setEnabled(false);
+	private void multipleFilesRadioButtonWidgetSelectedInternal() {
+		txtFileNameEdit.setEnabled(true);
+		browseIniFileButton.setEnabled(true);
 
-    File configFile = new File(txtFileNameEdit.getText());
-    parseButton.setEnabled((configFile.exists() && configFile.isFile()));
+		rcFileNameEdit.setEnabled(false);
+		browseRCFileButton.setEnabled(false);
+
+		File configFile = new File(txtFileNameEdit.getText());
+		parseButton.setEnabled((configFile.exists() && configFile.isFile()));
+		
+		Preferences.userRoot().put(PREF_INCLUDE_RC_RADIO, PREF_INCLUDE_RC_VAL_MULTIPLE);
 	}
 
   //------------------------------------------------------------------------------------------------
@@ -1536,7 +1589,10 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
     iniFilePicker.setFileName(txtFileNameEdit.getText());
     String newFile = iniFilePicker.open();
     if (newFile != null)
+    {
       txtFileNameEdit.setText(newFile);
+      Preferences.userRoot().put(PREF_INCLUDE_RC_FILE_PATH_MULTIPLE, newFile);
+    }
 	}
 
   //------------------------------------------------------------------------------------------------
@@ -1549,7 +1605,10 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
     outputPathPicker.setFilterPath(outputPathEdit.getText());
     String newFolder = outputPathPicker.open();
     if (newFolder != null)
+    {
+      Preferences.userRoot().put(PREF_INCLUDE_OUTPUT_PATH, newFolder);
       outputPathEdit.setText(newFolder);
+    }
   }
 
   //------------------------------------------------------------------------------------------------
