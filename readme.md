@@ -28,6 +28,7 @@ VM arguments:
 `-Dinclude-paths="${env_var:include}"`
 
 Running
+===
 1. Open (Import into workspace), and compile with eclipse helios (Java IDE) - https://www.eclipse.org/downloads/packages/release/helios/r
 2. Download swt - http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/R-3.1.1-200509290840/swt-3.1.1-win32-win32-x86.zip
 3. Add swt's Jar as referenced library
@@ -37,6 +38,7 @@ Running
 7. Download antlr 2.7.3 and add its Jar to reference while removing antlr 2.7.2 - https://github.com/antlr/website-antlr2/blob/gh-pages/download/antlr-2.7.3.jar
 
 References
+===
 1. https://www.eclipse.org/forums/index.php/t/166444/
 2. https://www.eclipse.org/forums/index.php/t/37549/
 3. https://stackoverflow.com/questions/957700/how-to-set-the-java-library-path-from-eclipse

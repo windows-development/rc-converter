@@ -31,6 +31,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import java.util.prefs.*;
+
+
 //import org.eclipse.swt.layout.;
 
 import org.jdom.*;
@@ -53,6 +56,9 @@ import antlr.collections.AST;
 */
 
 public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
+	
+	private String PREF_INCLUDE_PATHS = "INCLUDE_PATHS";
+	
 	private Button browseOutputFolderButton;
 	private Text outputPathEdit;
 	private Label button1;
@@ -540,6 +546,19 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
     String folder = folderPicker.open();
     if (folder != null)
       includePathList.add(folder);
+    
+    updatePathListPersistence();
+    
+	}
+
+	private void updatePathListPersistence() {
+		String includePathListToStr = "";
+		for (int i = 0; i < includePathList.getItemCount(); i++)
+		{
+			includePathListToStr += includePathList.getItem(i);
+			includePathListToStr += ";";
+		}
+		Preferences.userRoot().put(PREF_INCLUDE_PATHS, includePathListToStr);
 	}
 
   //------------------------------------------------------------------------------------------------
@@ -646,6 +665,7 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
           includePathList.setSelection(index);
         else
           includePathList.setSelection(index - 1);
+      updatePathListPersistence();
     }
 	}
 
@@ -1059,7 +1079,7 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 			label6LData.grabExcessHorizontalSpace = false;
 			label6LData.grabExcessVerticalSpace = false;
 			label6.setLayoutData(label6LData);
-			label6.setText("Include pathes:");
+			label6.setText("Include paths:");
 			label6.setSize(new org.eclipse.swt.graphics.Point(145,15));
 			label6.setFont(singleFileRadioButtonfont);
 	
@@ -1390,7 +1410,7 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 	public void postInitGUI()
   {
     // TODO: Remove debug path before release.
-    outputPathEdit.setText("V:\\Packaging\\RCConverter\\XML");
+    outputPathEdit.setText("");
 
     // If the user gave the system's include path environment variable to us (as VM argument) then
     // use this for the initial entries. Here's how you would specify the VM argument:
@@ -1398,9 +1418,24 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
     // (don't forget the quotes!). "include" is the Windows environment variable 
     // for the current include path.
     String includePaths = System.getProperty("include-paths");
-    String[] pathes = includePaths.split(";");
-    for (int i = 0; i < pathes.length; i++)
-      includes.add(pathes[i]);
+    if(includePaths != null)
+    {
+    	String[] pathes = includePaths.split(";");
+    	for (int i = 0; i < pathes.length; i++)
+    		includes.add(pathes[i]);
+    	Preferences.userRoot().put(PREF_INCLUDE_PATHS, includePaths);
+    }
+    else
+    {
+    	String includePathsStr = Preferences.userRoot().get(PREF_INCLUDE_PATHS, "");
+    	
+    	if(includePathsStr != "")
+    	{
+    		String[] paths = includePathsStr.split(";");
+    		for (int i = 0; i < paths.length; i++)
+        		includes.add(paths[i]);
+    	}
+    }
 
     // Check also the java command line for settings.
     if (commandLine != null)
@@ -1408,7 +1443,10 @@ public class RCMainFrame extends org.eclipse.swt.widgets.Composite {
 
     // Now fill the controls with their initial values from our internal lists.
     for (int i = 0; i < includes.size(); i++)
+    {
       includePathList.add((String) includes.get(i));
+    }
+    
     for (int i = 0; i < defines.size(); i++)
     {
       TableItem item = new TableItem(symbolsTable, SWT.NULL);
